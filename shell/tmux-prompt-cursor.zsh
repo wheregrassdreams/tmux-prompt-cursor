@@ -19,6 +19,9 @@ _tmux_prompt_cursor_move() {
   (( target < 0 )) && target=0
   (( target > ${#BUFFER} )) && target=${#BUFFER}
   CURSOR=$target
+  # Re-evaluate dynamic and multi-line prompts before redrawing the buffer.
+  # A plain redisplay can leave prompt cells stale after the cursor jumps.
+  zle reset-prompt
   zle redisplay
 }
 

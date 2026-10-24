@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+pane=${1:?pane id required}
+mouse_x=${2:?mouse x required}
+mouse_y=${3:?mouse y required}
+
+active=$(tmux show-option -p -t "$pane" -v @tmux-prompt-cursor-active 2>/dev/null || true)
+cursor_y=$(tmux display-message -p -t "$pane" '#{cursor_y}' 2>/dev/null || true)
+
+# The plugin keeps the fallback in tmux's key binding so the original mouse
+# event remains available to the clicked application. This helper only moves
+# the active Zsh prompt cursor.
+[ "$active" = 1 ] && [ "$mouse_y" = "$cursor_y" ] || exit 0
+tmux set-option -p -t "$pane" @tmux-prompt-cursor-x "$mouse_x"
+tmux set-option -p -t "$pane" @tmux-prompt-cursor-y "$mouse_y"
+tmux send-keys -t "$pane" C-]
